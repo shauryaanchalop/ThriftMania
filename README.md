@@ -6,9 +6,7 @@
   </p>
   
   <p>
-    <a href="YOUR_LIVE_LINK_HERE">View Live Demo</a> • 
-    <a href="#features">Features</a> • 
-    <a href="#tech-stack">Tech Stack</a>
+    <a href="https://thriftmania.netlify.app/" target="_blank">View Live Demo</a> • 
   </p>
 
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
