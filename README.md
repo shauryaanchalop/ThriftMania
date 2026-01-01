@@ -6,7 +6,7 @@
   </p>
   
   <p>
-    <a href="https://thriftmania.netlify.app/" target="_blank">View Live Demo</a> • 
+    <a href="https://thriftmania.netlify.app/" target="_blank">View Live Demo</a>
   </p>
 
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
@@ -23,15 +23,6 @@
 
 Built with a **"High-Impact, Low-Friction"** philosophy, the site features a custom brutalist aesthetic, seamless interactions, and a direct-to-WhatsApp checkout flow tailored for the Indian thrift market.
 
-## 📸 Visuals
-
-| **The Archive (Home)** | **The Stash (Cart)** |
-|:---:|:---:|
-| <img src="./screenshots/hero.png" width="400"> | <img src="./screenshots/cart.png" width="400"> |
-
-<div align="center">
-  <img src="./screenshots/shop-grid.png" width="850" alt="Shop Grid" />
-</div>
 
 ## ✨ Key Features
 
