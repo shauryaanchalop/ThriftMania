@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thriftmania.netlify.app/sitemap.xml

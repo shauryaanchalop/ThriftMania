@@ -1,23 +1,29 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThriftMania | Curated Vintage Archive</title>
     
-    <!-- FAVICON (Browser Tab Icon) -->
+    <title>ThriftMania | India's Premium Vintage Clothing Archive</title>
+    <meta name="description" content="ThriftMania is India's premier online thrift store for vintage streetwear, curated workwear, and rare fashion archives. Shop authentic brands like Carhartt, Nike, and Ralph Lauren.">
+    <meta name="keywords" content="ThriftMania, Thrift Store India, Vintage Clothing India, Second Hand Branded Clothes, Streetwear India, Carhartt India, Online Thrift Shop">
+    <meta name="author" content="Shaurya Anchal">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:title" content="ThriftMania | Curated Vintage Archive">
+    <meta property="og:description" content="Strictly sourced vintage workwear and rare streetwear. Pan-India shipping available now.">
+    <meta property="og:image" content="https://thriftmania.netlify.app/logo.png">
+    <meta property="og:url" content="https://thriftmania.netlify.app/">
+    <meta property="og:type" content="website">
+
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
+    <link rel="canonical" href="https://thriftmania.netlify.app/">
 
-    <!-- 1. Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 2. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 3. Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -42,131 +48,68 @@
                     animation: {
                         'fade-in': 'fadeIn 0.8s ease-out forwards',
                         'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'marquee': 'marquee 30s linear infinite', // Slower, smoother
+                        'marquee': 'marquee 30s linear infinite',
                     },
                     keyframes: {
                         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
                         slideUp: { '0%': { opacity: '0', transform: 'translateY(40px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-50%)' } } // 50% for seamless duplicate
+                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-50%)' } }
                     }
                 }
             }
         }
     </script>
 
-    <!-- 4. Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        /* BASE STYLES */
-        
+        /* [KEEP YOUR ORIGINAL CSS STYLES HERE - Copy from your previous code] */
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #111; }
         ::-webkit-scrollbar-thumb { background: #4A5D4E; }
-
-        /* Grain Texture Overlay */
+        
         .noise-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 40; opacity: 0.05;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
-
-        /* Cinematic Vignette */
         .vignette-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 39;
             background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.4) 100%);
         }
-
-        /* BETTER CUSTOM CURSOR - DESKTOP ONLY */
-        @media (min-width: 1024px) {
+        /* ... Add the rest of your CSS styles here ... */
+         @media (min-width: 1024px) {
             body { cursor: none; }
-            
             #cursor-dot {
-                position: fixed; top: 0; left: 0;
-                width: 8px; height: 8px;
-                background-color: #4A5D4E; /* Brand Olive Color */
-                border-radius: 50%;
-                pointer-events: none; z-index: 9999;
-                transform: translate(-50%, -50%);
-                transition: transform 0.1s ease;
+                position: fixed; top: 0; left: 0; width: 8px; height: 8px;
+                background-color: #4A5D4E; border-radius: 50%; pointer-events: none; z-index: 9999;
+                transform: translate(-50%, -50%); transition: transform 0.1s ease;
                 box-shadow: 0 0 10px rgba(74, 93, 78, 0.5);
             }
-            
             #cursor-ring {
-                position: fixed; top: 0; left: 0;
-                width: 40px; height: 40px;
-                border: 1px solid #4A5D4E;
-                border-radius: 50%;
-                pointer-events: none; z-index: 9998;
+                position: fixed; top: 0; left: 0; width: 40px; height: 40px;
+                border: 1px solid #4A5D4E; border-radius: 50%; pointer-events: none; z-index: 9998;
                 transform: translate(-50%, -50%);
                 transition: left 0.15s ease-out, top 0.15s ease-out, width 0.3s, height 0.3s, background-color 0.3s;
             }
-            
-            /* Hover State - Only active on Buttons/Links */
-            body.hover-active #cursor-dot {
-                transform: translate(-50%, -50%) scale(0.5);
-            }
-            body.hover-active #cursor-ring {
-                width: 60px; height: 60px;
-                background-color: rgba(74, 93, 78, 0.1);
-                border-color: transparent;
-            }
+            body.hover-active #cursor-dot { transform: translate(-50%, -50%) scale(0.5); }
+            body.hover-active #cursor-ring { width: 60px; height: 60px; background-color: rgba(74, 93, 78, 0.1); border-color: transparent; }
         }
-
-        /* Hide cursor elements on mobile */
-        @media (max-width: 1023px) {
-            #cursor-dot, #cursor-ring { display: none !important; }
-        }
-
-        /* CINEMATIC EFFECTS */
-        .reveal-text {
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
-        }
+        @media (max-width: 1023px) { #cursor-dot, #cursor-ring { display: none !important; } }
         
-        .char {
-            display: inline-block;
-            opacity: 0;
-            transform: translateY(100%);
-            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s;
-        }
+        .reveal-text { clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%); }
+        .char { display: inline-block; opacity: 0; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s; }
         .reveal-active .char { opacity: 1; transform: translateY(0); }
-
-        /* Clean Zoom on Hover */
         .zoom-hover { position: relative; overflow: hidden; }
-        .group:hover .zoom-hover img {
-            transform: scale(1.08); /* Slightly stronger zoom */
-        }
-
-        /* Whatsapp Button Pulse */
-        @keyframes pulse-whatsapp {
-            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-        }
-        .whatsapp-pulse {
-            animation: pulse-whatsapp 2s infinite;
-        }
-        
-        /* Social Hover Gradients */
-        .hover-insta:hover {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-            border-color: transparent;
-            color: white !important;
-        }
-        .hover-insta:hover svg {
-            fill: white;
-            stroke: white; /* Ensure visibility */
-        }
-        .hover-email:hover {
-            background: #EA4335;
-            border-color: transparent;
-            color: white !important; /* Fixed text color on hover */
-        }
-        .hover-email:hover i {
-            color: white;
-        }
+        .group:hover .zoom-hover img { transform: scale(1.08); }
+        @keyframes pulse-whatsapp { 0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); } 100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); } }
+        .whatsapp-pulse { animation: pulse-whatsapp 2s infinite; }
+        .hover-insta:hover { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); border-color: transparent; color: white !important; }
+        .hover-insta:hover svg { fill: white; stroke: white; }
+        .hover-email:hover { background: #EA4335; border-color: transparent; color: white !important; }
+        .hover-email:hover i { color: white; }
     </style>
 </head>
 <body class="bg-archive-50 text-archive-900 font-sans selection:bg-accent-olive selection:text-white overflow-x-hidden">
