@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThriftMania | Curated Vintage Archive</title>
+    
+    <!-- FAVICON (Browser Tab Icon) -->
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <!-- 1. Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 2. Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 3. Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        archive: {
+                            50: '#F9F8F6',
+                            100: '#F2EFE9',
+                            200: '#E5E0D8',
+                            800: '#2C2C2A',
+                            900: '#111110',
+                        },
+                        accent: {
+                            olive: '#4A5D4E',
+                            clay: '#9A4C36'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-out forwards',
+                        'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'marquee': 'marquee 30s linear infinite', // Slower, smoother
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(40px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        marquee: { '0%': { transform: 'translateX(0%)' }, '100%': { transform: 'translateX(-50%)' } } // 50% for seamless duplicate
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 4. Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* BASE STYLES */
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #4A5D4E; }
+
+        /* Grain Texture Overlay */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 40; opacity: 0.05;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Cinematic Vignette */
+        .vignette-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 39;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.4) 100%);
+        }
+
+        /* BETTER CUSTOM CURSOR - DESKTOP ONLY */
+        @media (min-width: 1024px) {
+            body { cursor: none; }
+            
+            #cursor-dot {
+                position: fixed; top: 0; left: 0;
+                width: 8px; height: 8px;
+                background-color: #4A5D4E; /* Brand Olive Color */
+                border-radius: 50%;
+                pointer-events: none; z-index: 9999;
+                transform: translate(-50%, -50%);
+                transition: transform 0.1s ease;
+                box-shadow: 0 0 10px rgba(74, 93, 78, 0.5);
+            }
+            
+            #cursor-ring {
+                position: fixed; top: 0; left: 0;
+                width: 40px; height: 40px;
+                border: 1px solid #4A5D4E;
+                border-radius: 50%;
+                pointer-events: none; z-index: 9998;
+                transform: translate(-50%, -50%);
+                transition: left 0.15s ease-out, top 0.15s ease-out, width 0.3s, height 0.3s, background-color 0.3s;
+            }
+            
+            /* Hover State - Only active on Buttons/Links */
+            body.hover-active #cursor-dot {
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            body.hover-active #cursor-ring {
+                width: 60px; height: 60px;
+                background-color: rgba(74, 93, 78, 0.1);
+                border-color: transparent;
+            }
+        }
+
+        /* Hide cursor elements on mobile */
+        @media (max-width: 1023px) {
+            #cursor-dot, #cursor-ring { display: none !important; }
+        }
+
+        /* CINEMATIC EFFECTS */
+        .reveal-text {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+        }
+        
+        .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s;
+        }
+        .reveal-active .char { opacity: 1; transform: translateY(0); }
+
+        /* Clean Zoom on Hover */
+        .zoom-hover { position: relative; overflow: hidden; }
+        .group:hover .zoom-hover img {
+            transform: scale(1.08); /* Slightly stronger zoom */
+        }
+
+        /* Whatsapp Button Pulse */
+        @keyframes pulse-whatsapp {
+            0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+        }
+        .whatsapp-pulse {
+            animation: pulse-whatsapp 2s infinite;
+        }
+        
+        /* Social Hover Gradients */
+        .hover-insta:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            border-color: transparent;
+            color: white !important;
+        }
+        .hover-insta:hover svg {
+            fill: white;
+            stroke: white; /* Ensure visibility */
+        }
+        .hover-email:hover {
+            background: #EA4335;
+            border-color: transparent;
+            color: white !important; /* Fixed text color on hover */
+        }
+        .hover-email:hover i {
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-archive-50 text-archive-900 font-sans selection:bg-accent-olive selection:text-white overflow-x-hidden">
+
+    <!-- CUSTOM CURSOR -->
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <div class="noise-overlay"></div>
+    <div class="vignette-overlay"></div>
+
+    <!-- ANNOUNCEMENT SCROLLER (Seamless Loop) -->
+    <div class="fixed top-0 left-0 right-0 bg-archive-900 text-archive-50 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] py-3 overflow-hidden z-50 border-b border-white/10 h-10 flex items-center">
+        <!-- Content duplicated for seamless loop -->
+        <div class="whitespace-nowrap animate-marquee flex gap-16 items-center">
+            <span class="text-accent-olive">///</span>
+            <span>Premium Vintage Sourced Globally</span>
+            <span class="text-accent-olive">///</span>
+            <span>Handpicked Selection</span>
+            <span class="text-accent-olive">///</span>
+            <span>Sustainable Fashion</span>
+            <span class="text-accent-olive">///</span>
+            <span>Pan-India Shipping</span>
+            <span class="text-accent-olive">///</span>
+            <span>New Drops Weekly</span>
+            
+            <!-- Duplicate for loop -->
+            <span class="text-accent-olive">///</span>
+            <span>Premium Vintage Sourced Globally</span>
+            <span class="text-accent-olive">///</span>
+            <span>Handpicked Selection</span>
+            <span class="text-accent-olive">///</span>
+            <span>Sustainable Fashion</span>
+            <span class="text-accent-olive">///</span>
+            <span>Pan-India Shipping</span>
+            <span class="text-accent-olive">///</span>
+            <span>New Drops Weekly</span>
+        </div>
+    </div>
+
+    <!-- NAVBAR (Larger Floating Pill Shape) -->
+    <nav id="navbar" class="fixed top-14 left-1/2 transform -translate-x-1/2 z-40 w-[95%] max-w-screen-2xl rounded-full bg-white/90 backdrop-blur-xl border border-gray-200/50 shadow-lg transition-all duration-500 ease-out py-5 text-black">
+        <div class="px-10 flex justify-between items-center">
+            
+            <!-- Logo -->
+            <a href="#" onclick="window.scrollTo(0,0)" class="flex items-center gap-3 group interactable">
+                <img src="logo.png" alt="ThriftMania" class="h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105">
+                <span class="font-serif font-bold text-2xl tracking-tight transition-transform duration-300 group-hover:scale-105">ThriftMania</span>
+            </a>
+
+            <!-- Desktop Links -->
+            <div class="hidden lg:flex items-center gap-12 text-sm font-bold uppercase tracking-widest absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <a href="#about" class="hover:text-accent-olive transition-colors relative group interactable">
+                    Manifesto
+                    <span class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                </a>
+                <a href="#shop" class="hover:text-accent-olive transition-colors relative group interactable">
+                    The Archive
+                    <span class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                </a>
+                <a href="#team" class="hover:text-accent-olive transition-colors relative group interactable">
+                    Team
+                    <span class="absolute -bottom-1 left-1/2 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                </a>
+            </div>
+
+            <!-- Icons -->
+            <div class="flex items-center gap-6">
+                <button onclick="toggleMobileMenu()" class="lg:hidden interactable"><i data-lucide="menu" class="w-6 h-6"></i></button>
+                <button onclick="toggleCart()" class="relative interactable group">
+                    <i data-lucide="shopping-bag" class="w-6 h-6 group-hover:scale-110 transition-transform"></i>
+                    <span id="cart-badge" class="absolute -top-1 -right-2 bg-archive-900 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center opacity-0 transition-opacity">0</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-archive-900 text-white translate-x-full transition-transform duration-700 cubic-bezier(0.7,0,0.3,1) flex flex-col justify-center items-center text-center">
+        <button onclick="toggleMobileMenu()" class="absolute top-8 right-8 p-4 interactable"><i data-lucide="x" class="w-8 h-8"></i></button>
+        <div class="space-y-12 font-serif italic text-5xl">
+            <a href="#about" onclick="toggleMobileMenu()" class="block hover:text-gray-400 transition-colors">Manifesto</a>
+            <a href="#shop" onclick="toggleMobileMenu()" class="block hover:text-gray-400 transition-colors">The Archive</a>
+            <a href="#team" onclick="toggleMobileMenu()" class="block hover:text-gray-400 transition-colors">Team</a>
+        </div>
+    </div>
+
+    <!-- CART DRAWER -->
+    <div id="cart-overlay" onclick="toggleCart()" class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-500"></div>
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 z-[60] w-full max-w-md bg-[#F9F8F6] border-l border-black shadow-2xl transform translate-x-full transition-transform duration-700 cubic-bezier(0.16, 1, 0.3, 1) flex flex-col">
+        <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="font-serif text-2xl italic">Your Stash</h2>
+            <div class="flex items-center gap-4">
+                <button onclick="clearCart()" class="text-xs uppercase font-bold text-red-500 hover:text-red-700 tracking-wider interactable">Clear All</button>
+                <button onclick="toggleCart()" class="interactable hover:rotate-90 transition-transform duration-500"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+        </div>
+        
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+
+        <div id="cart-footer" class="p-6 bg-white border-t border-gray-200 hidden">
+            <div class="flex justify-between items-center mb-6 font-serif text-xl">
+                <span>Total</span>
+                <span id="cart-total">₹0</span>
+            </div>
+            <button onclick="checkoutToWhatsapp()" class="interactable w-full bg-archive-900 text-white py-4 font-bold uppercase tracking-[0.2em] hover:bg-accent-olive transition-all duration-300 flex justify-center items-center gap-3 group">
+                <span>Checkout</span>
+                <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-2 transition-transform"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- CINEMATIC HERO (Compact Layout) -->
+    <header class="relative h-screen w-full overflow-hidden flex items-center justify-center bg-black">
+        <!-- Strictly Men's Fashion Image - Updated New Image (Unsplash) -->
+        <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&q=80&w=2000" class="absolute inset-0 w-full h-full object-cover opacity-60 animate-[pulse_10s_ease-in-out_infinite]" alt="Men's Vintage Clothing Store">
+        <div class="absolute inset-0 bg-gradient-to-t from-archive-900 via-transparent to-black/60"></div>
+
+        <div class="relative z-10 text-center px-4 pt-32 mix-blend-lighten flex flex-col items-center justify-center h-full"> 
+            <div class="overflow-hidden mb-6">
+                <span class="inline-block border border-white/50 text-white px-5 py-1.5 rounded-full text-[10px] uppercase tracking-[0.2em] backdrop-blur-md animate-slide-up">
+                    Sourced & Curated: Vol. I
+                </span>
+            </div>
+            
+            <h1 class="text-5xl md:text-8xl font-serif text-white italic leading-[0.9] tracking-tighter mb-6 perspective-text reveal-active">
+                <span class="block overflow-hidden"><span class="char" style="transition-delay: 0.1s">Reclaim</span></span>
+                <span class="block overflow-hidden"><span class="char font-light not-italic" style="transition-delay: 0.2s">The Past</span></span>
+            </h1>
+            
+            <p class="max-w-lg mx-auto text-white/80 font-light text-base md:text-lg mb-10 animate-fade-in delay-500 leading-relaxed">
+                Strictly sourced vintage workwear and rare streetwear.<br>Curated for the modern man.
+            </p>
+            
+            <div class="animate-fade-in delay-700">
+                <button onclick="document.getElementById('shop').scrollIntoView({behavior:'smooth'})" class="interactable group bg-white text-black px-10 py-4 font-bold uppercase tracking-widest text-xs hover:bg-accent-olive hover:text-white transition-all duration-500 flex items-center gap-3 mx-auto shadow-xl rounded-sm">
+                    <span>Enter Archive</span>
+                    <i data-lucide="arrow-down" class="w-4 h-4 group-hover:translate-y-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MANIFESTO SECTION -->
+    <section id="about" class="py-24 bg-archive-50 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-archive-100/50 skew-x-12 transform translate-x-1/4"></div>
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="relative group">
+                    <div class="absolute inset-0 bg-accent-olive transform translate-x-4 translate-y-4 transition-transform duration-500 group-hover:translate-x-2 group-hover:translate-y-2"></div>
+                    <!-- Updated Image: Vintage Style -->
+                    <img src="https://images.unsplash.com/photo-1559551409-dadc959f76b8?q=80&w=1200&auto=format&fit=crop" class="relative w-full h-[500px] object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-in-out shadow-2xl">
+                    <div class="absolute -bottom-10 -left-10 bg-white p-6 max-w-xs shadow-xl hidden md:block">
+                        <p class="font-serif italic text-xl leading-none">"Style is eternal. Trends are temporary."</p>
+                    </div>
+                </div>
+                <div class="space-y-8">
+                    <span class="text-accent-olive font-bold tracking-[0.3em] uppercase text-xs border-l-4 border-accent-olive pl-4">Manifesto</span>
+                    <h2 class="text-5xl font-serif text-archive-900 leading-none">More Than <br><span class="italic text-gray-400">Just Cloth.</span></h2>
+                    <div class="space-y-6 text-lg font-light text-archive-800 leading-relaxed">
+                        <p>ThriftMania wasn't built; it was collected. Born from the dusty racks of forgotten warehouses and the thrill of the hunt. We believe that <strong class="text-black bg-accent-olive/20 px-1">imperfection is authenticity.</strong></p>
+                        <p>Every fade on a Carhartt jacket, every crack on a vintage print—it tells a story that mass production can't replicate. We are archivists of the streets.</p>
+                    </div>
+                    <div class="pt-6">
+                        <div class="grid grid-cols-3 gap-6 border-t border-gray-300 pt-6">
+                            <div class="text-center">
+                                <h4 class="font-bold text-2xl mb-1">Select</h4>
+                                <p class="text-[10px] uppercase tracking-widest text-gray-500">Handpicked</p>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="font-bold text-2xl mb-1">100%</h4>
+                                <p class="text-[10px] uppercase tracking-widest text-gray-500">Authentic</p>
+                            </div>
+                            <div class="text-center">
+                                <h4 class="font-bold text-2xl mb-1">IND</h4>
+                                <p class="text-[10px] uppercase tracking-widest text-gray-500">Based</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SHOP SECTION -->
+    <main id="shop" class="bg-white py-24 border-t border-black">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+                <div>
+                    <span class="text-accent-olive font-bold tracking-[0.2em] text-xs uppercase">The Collection</span>
+                    <h3 class="text-4xl md:text-6xl font-serif text-archive-900 mt-2">Current Rotation</h3>
+                </div>
+                <div class="flex flex-wrap gap-2" id="filters">
+                    <button onclick="filter('all')" class="interactable filter-btn active px-5 py-2 bg-black text-white text-xs uppercase tracking-widest border border-black hover:bg-white hover:text-black transition-all">All</button>
+                    <button onclick="filter('Outerwear')" class="interactable filter-btn px-5 py-2 bg-transparent text-gray-500 text-xs uppercase tracking-widest border border-gray-200 hover:border-black hover:text-black transition-all">Outerwear</button>
+                    <button onclick="filter('Tees')" class="interactable filter-btn px-5 py-2 bg-transparent text-gray-500 text-xs uppercase tracking-widest border border-gray-200 hover:border-black hover:text-black transition-all">Tees</button>
+                    <button onclick="filter('Denim')" class="interactable filter-btn px-5 py-2 bg-transparent text-gray-500 text-xs uppercase tracking-widest border border-gray-200 hover:border-black hover:text-black transition-all">Denim</button>
+                </div>
+            </div>
+            <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12"></div>
+        </div>
+    </main>
+
+    <!-- TEAM SECTION -->
+    <section id="team" class="bg-archive-900 text-white py-24 relative">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-20">
+                <span class="text-accent-olive font-bold tracking-widest uppercase text-xs">The Visionaries</span>
+                <h3 class="text-4xl font-serif mt-4">Behind The Brand</h3>
+            </div>
+            <div class="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+                <!-- Member 1 -->
+                <div class="group relative interactable h-full">
+                    <div class="border border-white/20 p-8 hover:bg-white/5 transition-colors duration-500 relative z-10 flex flex-col h-full justify-between">
+                        <div>
+                            <h4 class="font-serif text-2xl mb-1">Shivam Kaushik</h4>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-6">Founder & Operations</p>
+                            <p class="text-gray-400 font-light leading-relaxed mb-8">"We don't just sell clothes. We preserve history." <br>Shivam handles the rigorous sourcing process, ensuring every piece meets archival standards.</p>
+                        </div>
+                        <div class="flex gap-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <a href="https://www.instagram.com/shivamm.kaushik" target="_blank" class="hover:text-[#E1306C] transition-colors group-hover:text-[#E1306C]">
+                                <i data-lucide="instagram" class="w-6 h-6"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/shivam-kaushik-946443377/" target="_blank" class="hover:text-[#0077b5] transition-colors group-hover:text-[#0077b5] fill-current">
+                                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 border border-white/10 transform translate-x-4 translate-y-4 -z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+                
+                <!-- Member 2 -->
+                <div class="group relative interactable h-full">
+                    <div class="border border-white/20 p-8 hover:bg-white/5 transition-colors duration-500 relative z-10 flex flex-col h-full justify-between">
+                        <div>
+                            <h4 class="font-serif text-2xl mb-1">Shaurya Anchal</h4>
+                            <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-6">Co-Founder & Tech</p>
+                            <p class="text-gray-400 font-light leading-relaxed mb-8">"Digital meets Analog." <br>Shaurya architects the digital experience, bridging the gap between vintage culture and modern e-commerce.</p>
+                        </div>
+                        <div class="flex gap-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                            <a href="https://www.instagram.com/shauryaanchal" target="_blank" class="hover:text-[#E1306C] transition-colors group-hover:text-[#E1306C]">
+                                <i data-lucide="instagram" class="w-6 h-6"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/shaurya-anchal" target="_blank" class="hover:text-[#0077b5] transition-colors group-hover:text-[#0077b5] fill-current">
+                                <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 border border-white/10 transform translate-x-4 translate-y-4 -z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black text-white pt-20 pb-16 border-t border-white/10 relative"> 
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-12 mb-16 items-start">
+                
+                <!-- Col 1: Branding (Centered relative to text) -->
+                <div>
+                    <!-- Logo without effect -->
+                    <div class="flex flex-col items-center md:items-start mb-6">
+                         <img src="logo.png" alt="ThriftMania Archive" class="h-12 w-auto object-contain">
+                         <h4 class="font-serif text-3xl italic mt-3">Stay in the Loop.</h4>
+                    </div>
+                </div>
+
+                <!-- Col 2: Contact -->
+                <div>
+                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold mb-4">Direct Line / WhatsApp</p>
+                    <div class="flex flex-col gap-2 font-mono text-sm text-gray-300">
+                        <a href="https://wa.me/917015603762" target="_blank" class="hover:text-accent-olive transition-colors flex items-center gap-2">
+                            <span>+91 70156 03762</span>
+                        </a>
+                        <a href="https://wa.me/919718179925" target="_blank" class="hover:text-accent-olive transition-colors flex items-center gap-2">
+                            <span>+91 97181 79925</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Col 3: Socials -->
+                <div>
+                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold mb-4">Socials</p>
+                    <div class="flex flex-col gap-3">
+                        <a href="https://www.instagram.com/thriftmaniia" target="_blank" class="text-sm border border-white/20 px-6 py-3 rounded-full transition-all duration-300 w-fit min-w-[140px] hover-insta flex items-center justify-center gap-2 group">
+                            <!-- White fill to ensure visibility -->
+                            <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.8,5.8 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.8,5.8 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z"/>
+                            </svg>
+                            Instagram
+                        </a>
+                        <a href="mailto:mail.thriftmania@gmail.com" class="text-sm border border-white/20 px-6 py-3 rounded-full transition-all duration-300 w-fit min-w-[140px] hover-email flex items-center justify-center gap-2">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                            Email
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Col 4: Availability -->
+                <div>
+                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold mb-4">Availability</p>
+                    <p class="text-sm text-gray-300 leading-relaxed">
+                        Online Exclusive<br>
+                        Based in India<br>
+                        Pan-India Shipping
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Big Chat Button -->
+            <div class="flex justify-center mb-16">
+                <a href="https://wa.me/917015603762?text=Hi%20ThriftMania%2C%20I%20have%20a%20query%20regarding%20an%20item%20in%20the%20archive." target="_blank" class="whatsapp-pulse inline-flex items-center gap-3 bg-[#25D366] text-black px-12 py-5 rounded-full font-bold uppercase text-xs tracking-widest hover:bg-white transition-all duration-300 interactable shadow-lg">
+                    <!-- Fixed WhatsApp Logo SVG -->
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    <span>Chat For Query</span>
+                </a>
+            </div>
+
+            <div class="w-full h-px bg-white/10 mb-8"></div>
+            
+            <div class="flex flex-col md:flex-row justify-center w-full text-[10px] uppercase tracking-widest text-gray-500">
+                <p>&copy; 2025 ThriftMania Archive.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-50 translate-y-20 opacity-0 transition-all duration-500 pointer-events-none">
+        <div class="bg-black text-white px-8 py-4 shadow-2xl flex items-center gap-4 border border-white/20 backdrop-blur-md bg-opacity-90">
+            <i data-lucide="check" class="w-5 h-5 text-accent-olive"></i>
+            <div>
+                <p class="font-bold text-sm uppercase tracking-wide">Added to Cart</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // --- DATA ---
+        const PRODUCTS = [
+            { id: 1, name: "Carhartt Detroit Jkt", price: 4500, cat: "Outerwear", img: "https://images.unsplash.com/photo-1517231422751-613422111419?w=600&q=80", badge: "Rare" },
+            { id: 2, name: "Nirvana '94 Tour Tee", price: 3800, cat: "Tees", img: "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80", badge: "Grail" },
+            { id: 3, name: "Levi's 501 Big E", price: 2500, cat: "Denim", img: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=600&q=80", badge: "Vintage" },
+            { id: 4, name: "Ralph Lauren Knit", price: 1800, cat: "Outerwear", img: "https://images.unsplash.com/photo-1620799140408-ed5341cd2431?w=600&q=80" },
+            { id: 5, name: "Heavy Flannel", price: 999, cat: "Tees", img: "https://images.unsplash.com/photo-1504198266287-1659872e6590?w=600&q=80" },
+            { id: 6, name: "TNF Nuptse 700", price: 6500, cat: "Outerwear", img: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=600&q=80", badge: "Winter" },
+            { id: 7, name: "Nike 90s Breaker", price: 1500, cat: "Outerwear", img: "https://images.unsplash.com/photo-1606105961732-6b326f036787?w=600&q=80" },
+            { id: 8, name: "Varsity Letterman", price: 3200, cat: "Outerwear", img: "https://images.unsplash.com/photo-1551488852-081bd4c4a6e4?w=600&q=80", badge: "1-of-1" }
+        ];
+
+        // --- STATE ---
+        let cart = [];
+        let currentFilter = 'all';
+
+        // --- CURSOR LOGIC ---
+        function initCursor() {
+            if (window.innerWidth < 1024) return;
+            const dot = document.getElementById('cursor-dot');
+            const ring = document.getElementById('cursor-ring');
+            if (!dot || !ring) return;
+            document.addEventListener('mousemove', (e) => {
+                dot.style.left = e.clientX + 'px';
+                dot.style.top = e.clientY + 'px';
+                setTimeout(() => {
+                    ring.style.left = e.clientX + 'px';
+                    ring.style.top = e.clientY + 'px';
+                }, 50);
+            });
+            document.querySelectorAll('a, button, .interactable').forEach(el => {
+                el.addEventListener('mouseenter', () => document.body.classList.add('hover-active'));
+                el.addEventListener('mouseleave', () => document.body.classList.remove('hover-active'));
+            });
+        }
+
+        // --- APP LOGIC ---
+        function init() {
+            renderProducts();
+            lucide.createIcons();
+            initCursor();
+            window.addEventListener('resize', initCursor);
+            setupScrollEffects();
+        }
+
+        function setupScrollEffects() {
+            const nav = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if(window.scrollY > 50) {
+                    nav.classList.add('bg-white/90', 'backdrop-blur-xl', 'shadow-lg');
+                    nav.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+                } else {
+                    nav.classList.remove('bg-white/90', 'backdrop-blur-xl', 'shadow-lg');
+                    nav.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+                }
+            });
+        }
+
+        function renderProducts() {
+            const filtered = currentFilter === 'all' ? PRODUCTS : PRODUCTS.filter(p => p.cat === currentFilter);
+            const grid = document.getElementById('grid');
+            grid.innerHTML = filtered.map((p, index) => `
+                <div class="group cursor-none interactable animate-slide-up" style="animation-delay: ${index * 0.1}s">
+                    <div class="relative aspect-[3/4] overflow-hidden bg-archive-200 mb-6 zoom-hover">
+                        ${p.badge ? `<span class="absolute top-0 left-0 z-10 bg-black text-white px-3 py-2 text-[10px] font-bold uppercase tracking-widest">${p.badge}</span>` : ''}
+                        <img src="${p.img}" class="w-full h-full object-cover transition-transform duration-1000 ease-out">
+                        <button onclick="addToCart(${p.id})" class="absolute inset-x-0 bottom-0 bg-white text-black py-4 font-bold uppercase text-xs tracking-widest translate-y-full group-hover:translate-y-0 transition-transform duration-300 hover:bg-accent-olive hover:text-white">
+                            Add — ₹${p.price.toLocaleString('en-IN')}
+                        </button>
+                    </div>
+                    <div class="flex justify-between items-start border-t border-transparent group-hover:border-black pt-4 transition-colors duration-300">
+                        <div>
+                            <h3 class="font-serif text-xl text-archive-900 leading-none mb-1">${p.name}</h3>
+                            <p class="text-xs text-gray-400 uppercase tracking-widest">${p.cat}</p>
+                        </div>
+                        <span class="font-bold text-sm">₹${p.price.toLocaleString('en-IN')}</span>
+                    </div>
+                </div>
+            `).join('');
+            setTimeout(() => {
+                 document.querySelectorAll('#grid a, #grid button, #grid .interactable').forEach(el => {
+                    el.addEventListener('mouseenter', () => document.body.classList.add('hover-active'));
+                    el.addEventListener('mouseleave', () => document.body.classList.remove('hover-active'));
+                });
+            }, 100);
+        }
+
+        function filter(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const isActive = btn.textContent.toLowerCase() === category.toLowerCase() || (category === 'all' && btn.textContent === 'All');
+                if(isActive) {
+                    btn.classList.add('bg-black', 'text-white');
+                    btn.classList.remove('bg-transparent', 'text-gray-500');
+                } else {
+                    btn.classList.remove('bg-black', 'text-white');
+                    btn.classList.add('bg-transparent', 'text-gray-500');
+                }
+            });
+            renderProducts();
+        }
+
+        function addToCart(id) {
+            const product = PRODUCTS.find(p => p.id === id);
+            const existing = cart.find(i => i.id === id);
+            if(existing) existing.qty++; else cart.push({...product, qty: 1});
+            updateCartUI();
+            const t = document.getElementById('toast');
+            t.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
+            toggleCart(true);
+        }
+
+        function updateItemQty(id, change) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += change;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const q = cart.reduce((a,b)=>a+b.qty,0);
+            const b = document.getElementById('cart-badge');
+            b.textContent = q;
+            b.classList.toggle('opacity-100', q>0);
+            const list = document.getElementById('cart-items');
+            if(!cart.length) {
+                list.innerHTML = `<div class="h-64 flex flex-col items-center justify-center text-gray-400 gap-4"><i data-lucide="shopping-bag" class="w-8 h-8 opacity-50"></i><p class="font-serif italic text-xl">Empty Archive.</p></div>`;
+                document.getElementById('cart-footer').classList.add('hidden');
+            } else {
+                list.innerHTML = cart.map(i => `
+                    <div class="flex gap-6 animate-fade-in group">
+                        <img src="${i.img}" class="w-24 h-32 object-cover bg-gray-200">
+                        <div class="flex-1 flex flex-col justify-between py-2">
+                            <div>
+                                <h4 class="font-serif text-xl leading-none mb-2">${i.name}</h4>
+                                <p class="text-xs text-gray-500 uppercase tracking-wider">₹${i.price.toLocaleString('en-IN')}</p>
+                            </div>
+                            <div class="flex justify-between items-center w-full mt-2">
+                                <!-- Qty Controls -->
+                                <div class="flex items-center border border-gray-300">
+                                    <button onclick="updateItemQty(${i.id}, -1)" class="px-2 py-1 hover:bg-gray-100 text-gray-600 interactable text-xs font-bold">-</button>
+                                    <span class="px-2 text-xs font-mono">${i.qty}</span>
+                                    <button onclick="updateItemQty(${i.id}, 1)" class="px-2 py-1 hover:bg-gray-100 text-gray-600 interactable text-xs font-bold">+</button>
+                                </div>
+                                <span class="font-bold">₹${(i.price*i.qty).toLocaleString('en-IN')}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                document.getElementById('cart-total').textContent = '₹' + cart.reduce((a,b)=>a+(b.price*b.qty),0).toLocaleString('en-IN');
+                document.getElementById('cart-footer').classList.remove('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        function removeFromCart(id) {
+            cart = cart.filter(x => x.id !== id);
+            updateCartUI();
+        }
+
+        function toggleCart(force) {
+            const d = document.getElementById('cart-drawer'), o = document.getElementById('cart-overlay');
+            const show = force === undefined ? d.classList.contains('translate-x-full') : force;
+            d.classList.toggle('translate-x-full', !show);
+            o.classList.toggle('opacity-0', !show);
+            o.classList.toggle('pointer-events-none', !show);
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('translate-x-full');
+        }
+
+        function checkoutToWhatsapp() {
+            if (!cart.length) return;
+            let msg = "Hi ThriftMania, I'd like to secure the following from the Archive:\n\n";
+            cart.forEach(i => msg += `• ${i.name} (x${i.qty}) - ₹${(i.price*i.qty).toLocaleString('en-IN')}\n`);
+            msg += `\n*Total Value: ₹${cart.reduce((a,b)=>a+(b.price*b.qty),0).toLocaleString('en-IN')}*`;
+            window.open(`https://wa.me/917015603762?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        init();
+    </script>
+</body>
+</html>
